@@ -9,13 +9,21 @@ import streamlit.components.v1 as components
 
 # Function to get the URL from the browser
 def get_url():
-    url = components.html("""
-        <script>
-            const url = window.parent.location.href;
-            const streamlitBackend = window.streamlitHttpClient;
-            streamlitBackend.sendMessage(url);
-        </script>
-    """, height=0)
+    get_current_url = """
+    <script>
+        const url = window.parent.location.href;
+        window.parent.postMessage({url: url}, "*");
+    </script>
+    <script>
+        window.addEventListener('message', (event) => {
+            const url = event.data.url;
+            if (url) {
+                Streamlit.setComponentValue(url);
+            }
+        });
+    </script>
+    """
+    url = components.html(get_current_url, height=0)
     return url
 
 # Function to parse the URL and extract the hostname
