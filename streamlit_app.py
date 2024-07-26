@@ -13,6 +13,13 @@ def generate_pkce_pair():
     ).rstrip(b'=').decode('utf-8')
     return code_verifier, code_challenge
 
+# Function to get the current URL of the Streamlit app
+def get_current_url():
+    url = st.experimental_get_query_params().get("callback_url", [None])[0]
+    if not url:
+        url = utils.get_url()
+    return url
+
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
@@ -36,9 +43,12 @@ else:
         # Store the code verifier in session state
         st.session_state.code_verifier = code_verifier
 
+        # Get the current URL to use as the callback URL
+        callback_url = get_current_url()
+
         # Redirect user to OpenRouter for authentication
         auth_url = (
-            f"https://openrouter.ai/auth?callback_url=http://localhost:8501&code_challenge={code_challenge}&code_challenge_method=S256"
+            f"https://openrouter.ai/auth?callback_url={callback_url}&code_challenge={code_challenge}&code_challenge_method=S256"
         )
         st.write(f"[Click here to authenticate]({auth_url})")
 
@@ -88,7 +98,7 @@ if st.session_state.authenticated:
         # Generate a response using the OpenRouter API.
         response = client.chat.completions.create(
             extra_headers={
-                "HTTP-Referer": "http://localhost:8501",  # Optional, replace with your site URL
+                "HTTP-Referer": callback_url,  # Optional, replace with your site URL
                 "X-Title": "Chatbot App",  # Optional, replace with your app name
             },
             model="openai/gpt-3.5-turbo",
