@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, urlencode
 import hashlib
 import base64
 import os
