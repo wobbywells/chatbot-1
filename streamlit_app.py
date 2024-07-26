@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from urllib.parse import urlparse, parse_qs, urlencode
+from urllib.parse import urlparse, urlencode
 import hashlib
 import base64
 import os
@@ -9,16 +9,14 @@ import streamlit.components.v1 as components
 
 # Function to get the URL from the browser
 def get_url():
-    components.html("""
+    url = components.html("""
         <script>
             const url = window.parent.location.href;
             const streamlitBackend = window.streamlitHttpClient;
-            streamlitBackend.send({url: url});
+            streamlitBackend.sendMessage(url);
         </script>
     """, height=0)
-
-    # Read the message from Streamlit's websocket
-    return st.experimental_get_query_params()
+    return url
 
 # Function to parse the URL and extract the hostname
 def url_to_hostname(url):
@@ -35,7 +33,7 @@ code_verifier, code_challenge = generate_code_challenge()
 
 # Get the site URL
 site_url = get_url()
-callback_url = url_to_hostname(site_url["url"][0]) if "url" in site_url else "http://localhost:8501"
+callback_url = url_to_hostname(site_url) if site_url else "http://localhost:8501"
 
 # Constants
 CALLBACK_URL = callback_url  # Use the grabbed site URL
