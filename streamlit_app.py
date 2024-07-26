@@ -15,10 +15,10 @@ def generate_pkce_pair():
 
 # Function to get the current URL of the Streamlit app
 def get_current_url():
-    url = st.experimental_get_query_params().get("callback_url", [None])[0]
-    if not url:
-        url = utils.get_url()
-    return url
+    if 'externalUrl' not in st.session_state:
+        # Simulate obtaining the URL from a public deployment setting
+        st.session_state.externalUrl = "http://localhost:8501"
+    return st.session_state.externalUrl
 
 # Show title and description.
 st.title("💬 Chatbot")
@@ -98,7 +98,7 @@ if st.session_state.authenticated:
         # Generate a response using the OpenRouter API.
         response = client.chat.completions.create(
             extra_headers={
-                "HTTP-Referer": callback_url,  # Optional, replace with your site URL
+                "HTTP-Referer": get_current_url(),  # Optional, replace with your site URL
                 "X-Title": "Chatbot App",  # Optional, replace with your app name
             },
             model="openai/gpt-3.5-turbo",
